@@ -13,7 +13,7 @@ export default function middleware(req) {
     const hash = path.split("/").filter(Boolean).pop();
 
     if (hash) {
-      const destination = `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/redirector/${hash}`;
+      const destination = `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/chop-redirector/${hash}`;
 
       // Perform a 307 (Temporary Redirect) to the Supabase Edge Function
       return Response.redirect(destination, 307);
