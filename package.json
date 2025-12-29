@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/space-grotesk": "^5.2.10",
     "@mantine/core": "^8.3.10",
     "@mantine/dates": "^8.3.10",
     "@mantine/notifications": "^8.3.10",
