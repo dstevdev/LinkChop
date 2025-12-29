@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@mantine/core": "^8.3.10",
+    "@supabase/supabase-js": "^2.89.0",
+    "js-sha3": "^0.9.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

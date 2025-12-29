@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { shake128 } from "js-sha3";
+
 import {
   Button,
   Input,
@@ -10,6 +13,14 @@ import {
 } from "@mantine/core";
 
 function App() {
+  const [url, setUrl] = useState("");
+
+  const handleEncode = (input) => {
+    console.log("Encoding: ", input);
+    shake128(input, 10);
+    console.log("Encoded: ", shake128(input, 24));
+  };
+
   return (
     <>
       <AppShell padding="md" header={{ height: 60 }}>
@@ -19,8 +30,16 @@ function App() {
             <Stack align="center">
               <Title order={1}>LinkChop</Title>
               <Group align="center">
-                <Input placeholder="URL to Chop" size="lg" w={500} />
-                <Button size="lg">Chop</Button>
+                <Input
+                  placeholder="URL to Chop"
+                  size="lg"
+                  w={500}
+                  value={url}
+                  onChange={(event) => setUrl(event.currentTarget.value)}
+                />
+                <Button size="lg" onClick={() => handleEncode(url)}>
+                  Chop
+                </Button>
               </Group>
             </Stack>
           </Center>
