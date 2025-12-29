@@ -1,30 +1,31 @@
-import { NextResponse } from "next/server";
+// middleware.js (Project Root)
 
-export function middleware(req) {
-  const url = req.nextUrl.clone();
-  // Get the path (e.g., /abc123)
+export default async function middleware(req) {
+  const url = new URL(req.url);
   const path = url.pathname;
 
-  // 1. Skip the middleware if it's the homepage or a static asset (like images/favicon)
-  if (path === "/" || path.includes(".") || path.startsWith("/api")) {
-    return NextResponse.next();
+  // 1. Exclude static files and the homepage
+  // path === '/' -> The UI
+  // path.includes('.') -> favicon.ico, assets, etc.
+  if (path === "/" || path.includes(".")) {
+    return Response.next();
   }
 
-  // 2. Extract the hash
+  // 2. Extract the hash (the part after the slash)
   const hash = path.split("/").filter(Boolean).pop();
 
   if (hash) {
-    // 3. Silently proxy to your Supabase Edge Function
-    // This keeps "linkchop.me" in the address bar while fetching from Supabase
-    return NextResponse.rewrite(
-      `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/redirector/${hash}`
-    );
+    // 3. Redirect to your Supabase Edge Function
+    // We use a 302 redirect here so the browser goes to the Supabase function
+    const supabaseFunctionUrl = `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/redirector/${hash}`;
+
+    return Response.redirect(supabaseFunctionUrl, 302);
   }
 
-  return NextResponse.next();
+  return Response.next();
 }
 
-// 4. Optional: Only run middleware on specific paths to save on execution time
+// Ensure the middleware only runs on actual paths
 export const config = {
   matcher: "/:path*",
 };
