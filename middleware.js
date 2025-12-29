@@ -1,31 +1,38 @@
-// middleware.js (Project Root)
+// middleware.js (at the project root)
 
-export default async function middleware(req) {
+export default function middleware(req) {
   const url = new URL(req.url);
   const path = url.pathname;
 
-  // 1. Exclude static files and the homepage
-  // path === '/' -> The UI
-  // path.includes('.') -> favicon.ico, assets, etc.
-  if (path === "/" || path.includes(".")) {
-    return Response.next();
+  // 1. Identify shortlink candidates
+  // We ignore the homepage ('/') and files with extensions (like .js, .css, .png)
+  const isInternalFile = path.includes(".");
+  const isHomepage = path === "/";
+
+  if (!isHomepage && !isInternalFile) {
+    const hash = path.split("/").filter(Boolean).pop();
+
+    if (hash) {
+      const destination = `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/redirector/${hash}`;
+
+      // Perform a 307 (Temporary Redirect) to the Supabase Edge Function
+      return Response.redirect(destination, 307);
+    }
   }
 
-  // 2. Extract the hash (the part after the slash)
-  const hash = path.split("/").filter(Boolean).pop();
-
-  if (hash) {
-    // 3. Redirect to your Supabase Edge Function
-    // We use a 302 redirect here so the browser goes to the Supabase function
-    const supabaseFunctionUrl = `https://cjkntiqdvzevlnyxovau.supabase.co/functions/v1/redirector/${hash}`;
-
-    return Response.redirect(supabaseFunctionUrl, 302);
-  }
-
-  return Response.next();
+  // 2. Fallback: If we return nothing, Vercel continues to the React App
+  return;
 }
 
-// Ensure the middleware only runs on actual paths
 export const config = {
-  matcher: "/:path*",
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };
